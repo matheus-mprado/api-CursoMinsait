@@ -1,4 +1,4 @@
-package com.minsait.api.sicurity.util;
+package com.minsait.api.security.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -20,16 +20,16 @@ public class JWTUtil {
 
     public String generateToken(String username, ArrayList<String> authorities, Integer user_id) {
         return Jwts.builder()
-                .claim("user_name",username)
-                .claim("authorities",authorities)
+                .claim("user_name", username)
+                .claim("authorities", authorities)
                 .claim("user_id", user_id)
                 .setExpiration(new Date(System.currentTimeMillis() + 600000))
                 .signWith(SignatureAlgorithm.HS512, this.jwtSecret.getBytes())
                 .compact();
     }
 
-    public String generateToken(String username, ArrayList<String> authorities){
-       return this.generateToken(username,  authorities, null);
+    public String generateToken(String username, ArrayList<String> authorities) {
+        return this.generateToken(username, authorities, null);
     }
 
     public Boolean isSecurityEnabled() {
@@ -60,8 +60,7 @@ public class JWTUtil {
     public Claims getClaims(String token) {
         try {
             return Jwts.parser().setSigningKey(jwtSecret.getBytes()).parseClaimsJws(token).getBody();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return null;
         }
     }

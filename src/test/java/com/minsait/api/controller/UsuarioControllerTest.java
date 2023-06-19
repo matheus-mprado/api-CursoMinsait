@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.minsait.api.controller.dto.UsuarioRequest;
 import com.minsait.api.repository.UsuarioRepository;
-import com.minsait.api.sicurity.util.JWTUtil;
+import com.minsait.api.security.util.JWTUtil;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,7 +46,7 @@ class UsuarioControllerTest {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @BeforeEach
-    public void init(){
+    public void init() {
         ow = MAPPER.writer().withDefaultPrettyPrinter();
         ArrayList<String> authorities = new ArrayList<>();
         authorities.add("LEITURA_USUARIO");
@@ -57,8 +58,8 @@ class UsuarioControllerTest {
     @DisplayName("Deve retornar todos os usuarios")
     void usuarioFindAll() throws Exception {
         mvc.perform(MockMvcRequestBuilders.get("/api/usuario")
-                        .header("Authorization", "Bearer ".concat(token))
-                        .contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", "Bearer ".concat(token))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content").isNotEmpty())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content.[0].id").value(1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content.[0].login").value("root"))
@@ -79,16 +80,15 @@ class UsuarioControllerTest {
         request.setEmail("abdias@outlook.com");
         request.setPermissoes("ESCRITA_CLIENTE,LEITURA_CLIENTE,ESCRITA_USUARIO,LEITURA_USUARIO");
         mvc.perform(MockMvcRequestBuilders.post("/api/usuario")
-                        .header("Authorization", "Bearer ".concat(token))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(ow.writeValueAsString(request))
-                )
+                .header("Authorization", "Bearer ".concat(token))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ow.writeValueAsString(request)))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.nome").value(request.getNome()))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
                 .andDo(MockMvcResultHandlers.print());
 
-        //verifica se o usuário foi inserido no banco
+        // verifica se o usuário foi inserido no banco
         final var usuarioInserido = usuarioRepository.findByLogin(request.getLogin());
         assertEquals(request.getLogin(), usuarioInserido.getLogin());
     }
@@ -103,21 +103,21 @@ class UsuarioControllerTest {
         request.setLogin("root");
         request.setPermissoes("ESCRITA_CLIENTE,LEITURA_CLIENTE,ESCRITA_USUARIO,LEITURA_USUARIO");
         mvc.perform(MockMvcRequestBuilders.put("/api/usuario")
-                        .header("Authorization", "Bearer ".concat(token))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(ow.writeValueAsString(request))
-                )
+                .header("Authorization", "Bearer ".concat(token))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ow.writeValueAsString(request)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.nome").value("Root update"))
                 .andDo(MockMvcResultHandlers.print());
 
-        //verifica se o usuário foi alterado no banco
+        // verifica se o usuário foi alterado no banco
         final var usuarioAlterado = usuarioRepository.findByLogin(request.getLogin());
         assertEquals(request.getNome(), usuarioAlterado.getNome());
 
-        //verifica se a senha do usuário não foi alterada ou descriptogravada
-        //Ao alterar um usuarío, não é obrigatório alterar a senha. Se a senha não for enviada no request,
-        //deve manter a senha antiga ciptografada que já está salva no banco.
+        // verifica se a senha do usuário não foi alterada ou descriptogravada
+        // Ao alterar um usuarío, não é obrigatório alterar a senha. Se a senha não for
+        // enviada no request,
+        // deve manter a senha antiga ciptografada que já está salva no banco.
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         assertTrue(encoder.matches("12345", usuarioAlterado.getSenha()));
     }
@@ -132,10 +132,9 @@ class UsuarioControllerTest {
         request.setLogin("root");
         request.setPermissoes("ESCRITA_CLIENTE,LEITURA_CLIENTE,ESCRITA_USUARIO,LEITURA_USUARIO");
         mvc.perform(MockMvcRequestBuilders.put("/api/usuario")
-                        .header("Authorization", "Bearer ".concat(token))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(ow.writeValueAsString(request))
-                )
+                .header("Authorization", "Bearer ".concat(token))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ow.writeValueAsString(request)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
                 .andDo(MockMvcResultHandlers.print());
     }
@@ -144,12 +143,12 @@ class UsuarioControllerTest {
     @DisplayName("Deve excluir um usuario")
     void delete() throws Exception {
         mvc.perform(MockMvcRequestBuilders.delete("/api/usuario/2")
-                        .header("Authorization", "Bearer ".concat(token))
-                        .contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", "Bearer ".concat(token))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 
-        //verifica se o usuário foi excluído do banco
+        // verifica se o usuário foi excluído do banco
         final var usuarioExcluido = usuarioRepository.findById(2L);
         assertTrue(usuarioExcluido.isEmpty());
     }
@@ -158,9 +157,8 @@ class UsuarioControllerTest {
     @DisplayName("Deve retornar 404 quando tentar excluir usuario não encontrado")
     void deleteNotFound() throws Exception {
         mvc.perform(MockMvcRequestBuilders.delete("/api/usuario/10")
-                        .header("Authorization", "Bearer ".concat(token))
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
+                .header("Authorization", "Bearer ".concat(token))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
                 .andDo(MockMvcResultHandlers.print());
     }
@@ -169,8 +167,8 @@ class UsuarioControllerTest {
     @DisplayName("Deve encontrar um usuario pelo id")
     void findById() throws Exception {
         mvc.perform(MockMvcRequestBuilders.get("/api/usuario/1")
-                        .header("Authorization", "Bearer ".concat(token))
-                        .contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", "Bearer ".concat(token))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.senha").doesNotExist())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.permissoes").isNotEmpty())
@@ -187,8 +185,8 @@ class UsuarioControllerTest {
         token = jwtUtil.generateToken("admin", authorities, 5);
 
         mvc.perform(MockMvcRequestBuilders.get("/api/usuario")
-                        .header("Authorization", "Bearer ".concat(token))
-                        .contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", "Bearer ".concat(token))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isForbidden())
                 .andDo(MockMvcResultHandlers.print());
     }
@@ -202,8 +200,8 @@ class UsuarioControllerTest {
         token = jwtUtil.generateToken("admin", authorities, 5);
 
         mvc.perform(MockMvcRequestBuilders.get("/api/usuario/1")
-                        .header("Authorization", "Bearer ".concat(token))
-                        .contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", "Bearer ".concat(token))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isForbidden())
                 .andDo(MockMvcResultHandlers.print());
     }
@@ -224,10 +222,9 @@ class UsuarioControllerTest {
         request.setEmail("abdias@outlook.com");
         request.setPermissoes("ESCRITA_CLIENTE,LEITURA_CLIENTE,ESCRITA_USUARIO,LEITURA_USUARIO");
         mvc.perform(MockMvcRequestBuilders.post("/api/usuario")
-                        .header("Authorization", "Bearer ".concat(token))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(ow.writeValueAsString(request))
-                )
+                .header("Authorization", "Bearer ".concat(token))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ow.writeValueAsString(request)))
                 .andExpect(MockMvcResultMatchers.status().isForbidden())
                 .andDo(MockMvcResultHandlers.print());
     }
@@ -247,10 +244,9 @@ class UsuarioControllerTest {
         request.setLogin("root");
         request.setPermissoes("ESCRITA_CLIENTE,LEITURA_CLIENTE,ESCRITA_USUARIO,LEITURA_USUARIO");
         mvc.perform(MockMvcRequestBuilders.put("/api/usuario")
-                        .header("Authorization", "Bearer ".concat(token))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(ow.writeValueAsString(request))
-                )
+                .header("Authorization", "Bearer ".concat(token))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ow.writeValueAsString(request)))
                 .andExpect(MockMvcResultMatchers.status().isForbidden())
                 .andDo(MockMvcResultHandlers.print());
     }
@@ -264,8 +260,8 @@ class UsuarioControllerTest {
         token = jwtUtil.generateToken("admin", authorities, 5);
 
         mvc.perform(MockMvcRequestBuilders.delete("/api/usuario/2")
-                        .header("Authorization", "Bearer ".concat(token))
-                        .contentType(MediaType.APPLICATION_JSON))
+                .header("Authorization", "Bearer ".concat(token))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isForbidden())
                 .andDo(MockMvcResultHandlers.print());
     }

@@ -19,7 +19,7 @@ public class UsuarioEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "API.SQ_ID_USUARIO")
-    @SequenceGenerator(name="API.SQ_ID_USUARIO", sequenceName = "API.SQ_ID_USUARIO", allocationSize = 1)
+    @SequenceGenerator(name = "API.SQ_ID_USUARIO", sequenceName = "API.SQ_ID_USUARIO", allocationSize = 1)
     @Column(name = "ID_USUARIO")
     private Long id;
 
@@ -37,4 +37,5 @@ public class UsuarioEntity {
 
     @Column(name = "PERMISSOES")
     private String permissoes;
+
 }

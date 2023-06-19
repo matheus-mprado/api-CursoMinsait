@@ -1,8 +1,5 @@
-package com.minsait.api.sicurity.filter;
+package com.minsait.api.security.filter;
 
-import com.minsait.api.sicurity.details.CustomUserDetails;
-import com.minsait.api.sicurity.util.JWTUtil;
-import com.minsait.api.sicurity.util.UserDetailUtil;
 import io.jsonwebtoken.Claims;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -10,6 +7,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+
+import com.minsait.api.security.details.CustomUserDetails;
+import com.minsait.api.security.util.JWTUtil;
+import com.minsait.api.security.util.UserDetailUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -25,7 +26,8 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
     private UserDetailsService userDetailsService;
 
-    public JWTAuthorizationFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, UserDetailsService userDetailsService) {
+    public JWTAuthorizationFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil,
+            UserDetailsService userDetailsService) {
         super(authenticationManager);
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
@@ -33,8 +35,8 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain chain) throws IOException, ServletException {
+            HttpServletResponse response,
+            FilterChain chain) throws IOException, ServletException {
 
         String header = request.getHeader("Authorization");
         if (Objects.nonNull(header) && header.startsWith("Bearer ")) {
@@ -53,13 +55,13 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
             String username = (String) claims.get("user_name");
             Integer userId = (Integer) claims.get("user_id");
 
-            
             ArrayList<String> authorities = (ArrayList<String>) claims.get("authorities");
 
             UserDetails user = UserDetailUtil.getUserDetail(username, authorities);
-           
-            CustomUserDetails userCustom = new CustomUserDetails(user.getUsername(), user.getPassword(), user.getAuthorities());
-            if(Objects.nonNull(userId)){
+
+            CustomUserDetails userCustom = new CustomUserDetails(user.getUsername(), user.getPassword(),
+                    user.getAuthorities());
+            if (Objects.nonNull(userId)) {
                 userCustom.setUserId(userId.longValue());
             }
             return new UsernamePasswordAuthenticationToken(userCustom, null, userCustom.getAuthorities());

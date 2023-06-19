@@ -1,4 +1,4 @@
-package com.minsait.api.sicurity.details;
+package com.minsait.api.security.details;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,7 +1,5 @@
-package com.minsait.api.sicurity;
+package com.minsait.api.security;
 
-import com.minsait.api.sicurity.filter.JWTAuthorizationFilter;
-import com.minsait.api.sicurity.util.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -11,12 +9,15 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import com.minsait.api.security.filter.JWTAuthorizationFilter;
+import com.minsait.api.security.util.JWTUtil;
+
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled=true)
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    protected static final String[] PUBLIC_MATCHERS = {"/h2-console/**"};
+    protected static final String[] PUBLIC_MATCHERS = { "/h2-console/**" };
 
     @Autowired
     private JWTUtil jwtUtil;
@@ -24,18 +25,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     UserDetailsService userDetailsService;
 
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
         http.headers().frameOptions().disable();
         http.cors().and().csrf().disable();
 
-        if(jwtUtil.isSecurityEnabled()){
+        if (jwtUtil.isSecurityEnabled()) {
             http.authorizeRequests()
                     .antMatchers(PUBLIC_MATCHERS).permitAll()
                     .anyRequest().authenticated();
-        }else{
+        } else {
             http.authorizeRequests().anyRequest().permitAll();
         }
         http.addFilter(new JWTAuthorizationFilter(authenticationManager(), jwtUtil, userDetailsService));

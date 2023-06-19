@@ -1,4 +1,4 @@
-package com.minsait.api.sicurity.expection;
+package com.minsait.api.security.expection;
 
 import org.springdoc.api.ErrorMessage;
 import org.springframework.core.Ordered;
